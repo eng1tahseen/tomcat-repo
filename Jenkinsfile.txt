@@ -1,11 +1,11 @@
 pipeline {
   agent any
   stages {
-    stage('Checkout'){ steps { checkout scm } }  // or remove (see note below)
+    stage('Checkout1'){ steps { checkout scm } }  // or remove (see note below)
     stage('Tool check'){ steps { bat 'mvn -v' } }
     stage('Build WAR'){ steps { bat 'mvn -B -DskipTests package' } }
 
-    stage('Checkout') {
+    stage('Checkout2') {
       steps {
         // Works when the job is "Pipeline script from SCM"
         checkout scm
@@ -63,5 +63,6 @@ pipeline {
     }
   }
 }
+
 
 
