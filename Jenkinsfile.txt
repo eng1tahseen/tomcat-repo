@@ -1,10 +1,5 @@
 pipeline {
   agent any
-  tools { maven 'Maven-3.9.9' }   // <— this makes 'mvn' available
-  environment {
-    TOMCAT_URL = 'http://localhost:8080'
-    CONTEXT    = '/hello'
-  }
   stages {
     stage('Checkout'){ steps { checkout scm } }  // or remove (see note below)
     stage('Tool check'){ steps { bat 'mvn -v' } }
@@ -68,4 +63,5 @@ pipeline {
     }
   }
 }
+
 
