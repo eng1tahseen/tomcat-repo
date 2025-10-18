@@ -1,5 +1,13 @@
 pipeline {
   agent any
+
+  tools { maven 'Maven-3.9.9' }   // Jenkins puts mvn on PATH
+
+  environment {
+    TOMCAT_URL = 'http://localhost:8080'
+    CONTEXT    = '/hello'
+  }
+
   stages {
     stage('Checkout1'){ steps { checkout scm } }  // or remove (see note below)
     stage('Tool check1'){ steps { bat 'mvn -v' } }
@@ -63,6 +71,7 @@ pipeline {
     }
   }
 }
+
 
 
 
