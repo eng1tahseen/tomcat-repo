@@ -1,0 +1,68 @@
+pipeline {
+  agent any
+
+  environment {
+    TOMCAT_URL = 'http://localhost:8080'
+    CONTEXT    = '/hello'  // app will live at http://localhost:8080/hello
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        // Works when the job is "Pipeline script from SCM"
+        checkout scm
+
+        // If you're pasting this pipeline instead of SCM mode, use:
+        // git url: 'https://github.com/yourname/your-repo.git',
+        //     branch: 'main',
+        //     credentialsId: 'your-git-creds-id'
+      }
+    }
+
+    stage('Tool check') {
+      steps {
+        bat 'java -version'
+        bat 'mvn -v'
+      }
+    }
+
+    stage('Build WAR') {
+      steps {
+        bat 'mvn -B -DskipTests package'
+        bat 'dir /b target\\*.war'
+      }
+    }
+
+    stage('Deploy to Tomcat') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'tomcat-creds',
+                                          usernameVariable: 'TUSER',
+                                          passwordVariable: 'TPASS')]) {
+          bat '''
+            for /f %%f in ('dir /b target\\*.war') do set WAR=target\\%%f
+            if not defined WAR ( echo WAR not found & exit /b 1 )
+
+            echo Deploying %WAR% to %TOMCAT_URL%%CONTEXT%
+            curl.exe -sS -u %TUSER%:%TPASS% ^
+              "%TOMCAT_URL%/manager/text/deploy?path=%CONTEXT%&update=true" ^
+              --upload-file "%WAR%"
+          '''
+        }
+      }
+    }
+
+    stage('Health check') {
+      steps {
+        bat 'powershell -Command "Invoke-WebRequest %TOMCAT_URL%%CONTEXT% -UseBasicParsing | Out-Null"'
+      }
+    }
+  }
+
+  post {
+    always {
+      // optional cleanup
+      deleteDir()
+    }
+  }
+}
