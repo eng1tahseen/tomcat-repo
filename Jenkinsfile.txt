@@ -2,8 +2,8 @@ pipeline {
   agent any
   stages {
     stage('Checkout1'){ steps { checkout scm } }  // or remove (see note below)
-    stage('Tool check'){ steps { bat 'mvn -v' } }
-    stage('Build WAR'){ steps { bat 'mvn -B -DskipTests package' } }
+    stage('Tool check1'){ steps { bat 'mvn -v' } }
+    stage('Build WAR1'){ steps { bat 'mvn -B -DskipTests package' } }
 
     stage('Checkout2') {
       steps {
@@ -63,6 +63,7 @@ pipeline {
     }
   }
 }
+
 
 
 
